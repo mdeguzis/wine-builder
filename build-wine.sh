@@ -85,45 +85,6 @@ function import()
     exit 1
 }
 
-
-function loadConfig()
-{
-    # @description Routine for loading configuration files that contain key-value pairs in the format KEY="VALUE"
-    # param $1 Path to the configuration file relate to this file.
-    local ${CONFIG_FILE}=$1
-    if test -e "${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
-    then
-        echo "Loaded configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
-        return
-    else
-	echo "Unable to find configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
-        exit 1
-    fi
-}
-
-function setDesktopEnvironment()
-{
-
-  ARG_UPPER_CASE="$1"
-  ARG_LOWER_CASE=`echo $1|tr '[:upper:]' '[:lower:]'`
-  XDG_DIR="XDG_"${ARG_UPPER_CASE}"_DIR"
-  xdg_dir="xdg_"${ARG_LOWER_CASE}"_dir"
-
-  setDir=`cat ${HOME}/.config/user-dirs.dirs | grep $XDG_DIR| sed s/$XDG_DIR/$xdg_dir/|sed s/HOME/home/`
-  target=`echo ${SET_DIR}| cut -f 2 -d "="| sed s,'${HOME}',${HOME},`
-
-  checkValid=`echo ${SET_DIR}|grep $xdg_dir=\"|grep home/`
-
-  if [ -n "${CHK_VALID}" ]; then
-    eval "${SET_DIR}"
-
-  else
-
-    echo "local desktop setting" ${XDG_DIR} "not found"
-
-  fi
-}
-
 get_wine()
 {
 
@@ -375,9 +336,6 @@ main()
 	getScriptAbsoluteDir "$script_invoke_path"
 	script_absolute_dir=$RESULT
 
-	# Import script modules
-	import "${SCRIPTDIR}/modues/arch-linux"
-	
 	# load script modules
 	import "${SCRIPTDIR}/modules/arch-linux"
 
