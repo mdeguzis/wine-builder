@@ -269,8 +269,8 @@ build_wine()
 
 		# Set opts for 32 bit build
 		WINE32OPTS=()
-		WINE32OPTS=+("--libdir=${OS_LIB_DIR_32)")
-		WINE32OPTS=+("--with-wine64=${WINE_GIT_ROOT}/wine-64-build")
+		WINE32OPTS+=(--libdir=${OS_LIB_DIR_32))
+		WINE32OPTS+=(--with-wine64=${WINE_GIT_ROOT}/wine-64-build)
 
 	elif [[ "${SYSTEM_ARCH}" == "i386" || "${SYSTEM_ARCH}" == "i686" ]]; then
 	
