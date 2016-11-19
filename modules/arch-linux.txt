@@ -2,110 +2,106 @@
 
 install_packages_arch_linux()
 {
+	# Reset PKG
+	PKG=()
 
-# Reset PKG
-PKG=()
+	if [[ "${SYSTEM_ARCH}" == "x86_64" ]]; then
 
-if [[ "${SYSTEM_ARCH}" == "x86_64" ]]; then
+		# System arch libs
+		PKGS+=("gcc")
+		PKGS+=("giflib")
+		PKGS+=("libpng")
+		PKGS+=("gnutls")
+		PKGS+=("libxinerama")
+		PKGS+=("libxcomposite")
+		PKGS+=("libxmu")
+		PKGS+=("libxxf86vm")
+		PKGS+=("libldap")
+		PKGS+=("mpg123")
+		PKGS+=("openal")
+		PKGS+=("v4l-utils")
+		PKGS+=("libpulse")
+		PKGS+=("alsa-lib")
+		PKGS+=("libxcomposite")
+		PKGS+=("mesa")
+		PKGS+=("mesa-libgl")
+		PKGS+=("libcl")
+		PKGS+=("libxslt")
+		PKGS+=("gst-plugins-base-libs")
+		PKGS+=("libxslt")
+		PKGS+=("samba")
+		PKGS+=("opencl-headers")
 
-        # System arch libs
-        PKGS+=("gcc")
-        PKGS+=("giflib")
-        PKGS+=("libpng")
-        PKGS+=("gnutls")
-        PKGS+=("libxinerama")
-        PKGS+=("libxcomposite")
-        PKGS+=("libxmu")
-        PKGS+=("libxxf86vm")
-        PKGS+=("libldap")
-        PKGS+=("mpg123")
-        PKGS+=("openal")
-        PKGS+=("v4l-utils")
-        PKGS+=("libpulse")
-        PKGS+=("alsa-lib")
-        PKGS+=("libxcomposite")
-        PKGS+=("mesa")
-        PKGS+=("mesa-libgl")
-        PKGS+=("libcl")
-        PKGS+=("libxslt")
-        PKGS+=("gst-plugins-base-libs")
-        PKGS+=("libxslt")
-        PKGS+=("samba")
-        PKGS+=("opencl-headers")
+		# 32 bit libs
+		PKGS+=("lib32-gcc")
+		PKGS+=("lib32-giflib")
+		PKGS+=("lib32-libpng")
+		PKGS+=("lib32-gnutls")
+		PKGS+=("lib32-libxinerama")
+		PKGS+=("lib32-libxcomposite")
+		PKGS+=("lib32-libxmu")
+		PKGS+=("lib32-libxxf86vm")
+		PKGS+=("lib32-libldap")
+		PKGS+=("lib32-mpg123")
+		PKGS+=("lib32-openal")
+		PKGS+=("lib32-v4l-utils")
+		PKGS+=("lib32-libpulse")
+		PKGS+=("lib32-alsa-lib")
+		PKGS+=("lib32-libxcomposite")
+		PKGS+=("lib32-mesa")
+		PKGS+=("lib32-mesa-libgl")
+		PKGS+=("lib32-libcl")
+		PKGS+=("lib32-libxslt")
+		PKGS+=("lib32-gst-plugins-base-libs")
+		PKGS+=("lib32-libxslt")
+		PKGS+=("lib32-samba")
+		PKGS+=("lib32-opencl-headers")
 
-        # 32 bit libs
-        PKGS+=("lib32-gcc")
-        PKGS+=("lib32-giflib")
-        PKGS+=("lib32-libpng")
-        PKGS+=("lib32-gnutls")
-        PKGS+=("lib32-libxinerama")
-        PKGS+=("lib32-libxcomposite")
-        PKGS+=("lib32-libxmu")
-        PKGS+=("lib32-libxxf86vm")
-        PKGS+=("lib32-libldap")
-        PKGS+=("lib32-mpg123")
-        PKGS+=("lib32-openal")
-        PKGS+=("lib32-v4l-utils")
-        PKGS+=("lib32-libpulse")
-        PKGS+=("lib32-alsa-lib")
-        PKGS+=("lib32-libxcomposite")
-        PKGS+=("lib32-mesa")
-        PKGS+=("lib32-mesa-libgl")
-        PKGS+=("lib32-libcl")
-        PKGS+=("lib32-libxslt")
-        PKGS+=("lib32-gst-plugins-base-libs")
-        PKGS+=("lib32-libxslt")
-        PKGS+=("lib32-samba")
-        PKGS+=("lib32-opencl-headers")
+	else
 
-else
-
-        # System arch libs
-        PKGS+=("gcc")
-        PKGS+=("giflib")
-        PKGS+=("libpng")
-        PKGS+=("gnutls")
-        PKGS+=("libxinerama")
-        PKGS+=("libxcomposite")
-        PKGS+=("libxmu")
-        PKGS+=("libxxf86vm")
-        PKGS+=("libldap")
-        PKGS+=("mpg123")
-        PKGS+=("openal")
-        PKGS+=("v4l-utils")
-        PKGS+=("libpulse")
-        PKGS+=("alsa-lib")
-        PKGS+=("libxcomposite")
-        PKGS+=("mesa")
-        PKGS+=("mesa-libgl")
-        PKGS+=("libcl")
-        PKGS+=("libxslt")
-        PKGS+=("gst-plugins-base-libs")
-        PKGS+=("libxslt")
-        PKGS+=("samba")
-        PKGS+=("opencl-headers")
-
-
-elif [[ "${SYSTEM_ARCH}" == "i686" ]]; then
-
-	echo -e "Unsupport arch! Exiting..."
-	sleep 5s
-	exit 1
-
-fi
-	
+		# System arch libs
+		PKGS+=("gcc")
+		PKGS+=("giflib")
+		PKGS+=("libpng")
+		PKGS+=("gnutls")
+		PKGS+=("libxinerama")
+		PKGS+=("libxcomposite")
+		PKGS+=("libxmu")
+		PKGS+=("libxxf86vm")
+		PKGS+=("libldap")
+		PKGS+=("mpg123")
+		PKGS+=("openal")
+		PKGS+=("v4l-utils")
+		PKGS+=("libpulse")
+		PKGS+=("alsa-lib")
+		PKGS+=("libxcomposite")
+		PKGS+=("mesa")
+		PKGS+=("mesa-libgl")
+		PKGS+=("libcl")
+		PKGS+=("libxslt")
+		PKGS+=("gst-plugins-base-libs")
+		PKGS+=("libxslt")
+		PKGS+=("samba")
+		PKGS+=("opencl-headers")
 
 
-# Install packages
+	elif [[ "${SYSTEM_ARCH}" == "i686" ]]; then
 
-# quotes needed on entry to preven globbing on directory creation!
-# Expanding arrays involves [@] and {}
+		echo -e "Unsupport arch! Exiting..."
+		sleep 5s
+		exit 1
 
-for PKG in "${PKGS[@]}"
-do
+	fi
 
-	sudo pacman -S --no-confirm ${PKG}
-	
-done
+	# Install packages
+	# quotes needed on entry to preven globbing on directory creation!
+	# Expanding arrays involves [@] and {}
+
+	for PKG in "${PKGS[@]}"
+	do
+
+		sudo pacman -S --no-confirm ${PKG}
+
+	done
 
 }
