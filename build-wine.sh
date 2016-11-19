@@ -8,34 +8,19 @@
 # Some build options mirrored from: 
 # https://git.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/wine
 
-build_wine()
+get_wine()
 {
 
 	SRC_URL="git://source.winehq.org/git/wine.git"
 
 	WINE_BUILD_ROOT="${HOME}/wine-builds"
 	WINE_GIT_ROOT="${WINE_BUILD_ROOT}/wine-git"
-
-	WINE_TARGET_DIR_32="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
-	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib"
-	WINE_TARGET_DIR_64="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
-	WINE_TARGET_LIB_DIR_64="${WINE_TARGET_DIR}/lib"	
+	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
 
 	mkdir -p "${WINE_BUILD_ROOT}"
-	mkdir -p "${WINE_TARGET_DIR_32}"
-	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
-	mkdir -p "${WINE_TARGET_DIR_64}"
-	mkdir -p "${WINE_TARGET_LIB_DIR_64}"
-
-	# Set default ARCH
-	if [[ "${ARCH}" == "" ]]; then
-
-		ARCH="amd64"
-
-	fi
+	mkdir -p "${WINE_TARGET_DIR}"
 
 	CURRENT_DIR=$(dirname $(readlink -f "$0"))
-
 
 	echo -e "\n==> Obtaining upstream source code"
 
@@ -76,7 +61,10 @@ build_wine()
 
 	fi
 
+}
 
+build_wine()
+{
 	# Prep git source
 	cd "${WINE_GIT_ROOT}"
 	
@@ -99,8 +87,8 @@ build_wine()
 	fi
 
 	# Get rid of old build dirs
-	rm -rf "${WINE_BUILD_ROOT}/wine-{32,64}-build"
-	mkdir -p "${WINE_BUILD_ROOT}/wine-{32,64}-build"
+	rm -rf "${WINE_GIT_ROOT}/wine-{32,64}-build"
+	mkdir -p "${WINE_GIT_ROOT}/wine-{32,64}-build"
 
 	# Check if an existing wine build result exists
 	
@@ -123,80 +111,73 @@ build_wine()
 
 	fi
 
+	# clean makefiles (just in case)
+	cd "${WINE_GIT_ROOT}"
+	make distclean
 
-	# All good to go!?
+	# Build
+	if [[ "${SYSTEM_ARCH}" == "x86_64" ]]; then
 
-	cat<<- EOF
+		cat<<- EOF
 
-	----------------------------------------------
-	Building Wine ${WINE_VERSION} for 32 bit
-	----------------------------------------------
+		----------------------------------------------
+		Building Wine ${WINE_VERSION} for 64 bit
+		----------------------------------------------
 
-	EOF
+		EOF
+		sleep 2s
 
-	cd "${WINE_BUILD_ROOT}/wine-32-build"
+		cd "${WINE_GIT_ROOT}/wine-64-build"
 
-	sleep 2s
+		sleep 2s
 
-	./configure --prefix=$TARGET_DIR \
-		--prefix=${WINE_TARGET_DIR_32}/ \
-		--libdir=${WINE_TARGET_LIB_DIR_32} \
-		--with-x \
-		--with-gstreamer \
-		--enable-win64
+		../configure \
+			--prefix=${WINE_TARGET_DIR}/ \
+			--libdir=${OS_LIB_DIR_64} \
+			--with-x \
+			--with-gstreamer \
+			--enable-win64
 
-	make depend
-	make
+		make
 
-	echo "Installing Wine 32 bit"
-	make install
+		# Set opts for 32 bit build
+		WINE32OPTS=()
+		WINE32OPTS=+("--libdir=${OS_LIB_DIR_32)")
+		WINE32OPTS=+("--with-wine64=${WINE_GIT_ROOT}/wine-64-build")
 
-	cat<<-EOF 
+	elif [[ "${SYSTEM_ARCH}" == "i386" || "${SYSTEM_ARCH}" == "i686" ]]; then
 	
-	----------------------------------------------
-	Building Wine ${WINE_VERSION} for 64 bit"
-	----------------------------------------------
+		cat<<- EOF
 
-	cd "${WINE_BUILD_ROOT}/wine-64-build"
-	
-	./configure --prefix=$TARGET_DIR \
-		--prefix=${WINE_TARGET_DIR_64}/ \
-		--libdir=${WINE_TARGET_LIB_DIR_64} \
-		--with-x \
-		--with-gstreamer \
-		--enable-win64
+		----------------------------------------------
+		Building Wine ${WINE_VERSION} for 32 bit"
+		----------------------------------------------
 
-	make depend
-	make
+		EOF
+		sleep 2s
 
-	echo "Installing Wine 64 bit"
-	make install
+		cd "${WINE_BUILD_ROOT}/wine-32-build"
 
-	EOF
+		../configure \
+			--prefix=${WINE_TARGET_DIR}/ \
+			--libdir=${WINE_TARGET_LIB_DIR_32} \
+			--with-x \
+			--with-gstreamer \
+			"${WINE32OPTS[@]}"
 
-}
+		make
 
-install_prereqs()
-{
 
-	# Test OS first, so we can allow configuration on multiple distros
-	export SYSTEM_OS=$(lsb_release -si)
-	export SYSTEM_ARCH=$(uname -m)
+	else
 
-	# handle OS dependencies in .shinc modules
-	case $OS in
-
-		Arch)
-		install_packages_arch_linux
-		;;
-
-		*)
-		echo "Unsupported OS!"
+		echo -e "\nUnsupported arch! Exiting..."
+		sleep 5s
 		exit 1
-		;;
 
-	esac
+	fi
 
+	# Install
+	sudo make install
 
 }
 
@@ -368,21 +349,45 @@ while :; do
 	shift
 done
 
+install_prereqs()
+{
+
+	# Test OS first, so we can allow configuration on multiple distros
+	export SYSTEM_OS=$(lsb_release -si)
+	export SYSTEM_ARCH=$(uname -m)
+
+	# handle OS dependencies in .shinc modules
+	case $OS in
+
+		Arch)
+		OS_LIB_DIR_64="/usr/lib"
+		OS_LIB_DIR_32="/usr/lib32"
+		install_packages_arch_linux
+		;;
+
+		*)
+		echo "Unsupported OS!"
+		exit 1
+		;;
+
+	esac
+
+
+}
 
 main()
 {
 
 	SCRIPTDIR=$(pwd)
-
 	
 	# load script modules
 	import "${SCRIPTDIR}/modules/arch-linux.txt"
 
-
 	# Install prereqs based on OS
 	install_prereqs
 
-	# build wine
+	# Build wine
+	get_wine
 	build_wine
 
 }
