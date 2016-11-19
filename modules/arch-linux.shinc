@@ -98,7 +98,11 @@ install_packages_arch_linux()
 	for PKG in "${PKGS[@]}"
 	do
 
-		sudo pacman -S --noconfirm ${PKG}
+		if ! pacman -Q ${PKG}; then
+
+			sudo pacman -S --noconfirm ${PKG}
+
+		fi
 
 	done
 
