@@ -85,20 +85,36 @@ function import()
     exit 1
 }
 
-get_wine()
+env_setup()
 {
 
-	SRC_URL="git://source.winehq.org/git/wine.git"
 
 	WINE_BUILD_ROOT="${HOME}/wine-builds"
 	WINE_GIT_ROOT="${WINE_BUILD_ROOT}/wine-git"
 	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
 
+	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
+	WINE_TARGET_DLL_DIR"${WINE_TARGET_LIB_DIR_64}/wine"
+
+	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
+	WINE_TARGET_DLL_DIR_32"${WINE_TARGET_LIB_DIR_32}/wine"
+
 	mkdir -p "${WINE_BUILD_ROOT}"
 	mkdir -p "${WINE_TARGET_DIR}"
+	mkdir -p "${WINE_TARGET_LIB_DIR}"
+	mkdir -p "${WINE_TARGET_DLL_DIR}"
+	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
+	mkdir -p "${WINE_TARGET_DLL_DIR_32}"
 
 	CURRENT_DIR=$(dirname $(readlink -f "$0"))
 
+
+}
+
+get_wine()
+{
+
+	SRC_URL="git://source.winehq.org/git/wine.git"
 	echo -e "\n==> Obtaining upstream source code"
 
 	if [[ -d "${WINE_GIT_ROOT}" ]]; then
@@ -142,6 +158,10 @@ get_wine()
 
 build_wine()
 {
+
+	# Notes
+	# Verified install files with `make -n install`
+
 	# Prep git source
 	cd "${WINE_GIT_ROOT}"
 	
@@ -210,7 +230,7 @@ build_wine()
 
 		../configure \
 			--prefix=${WINE_TARGET_DIR}/ \
-			--libdir=${OS_LIB_DIR_64} \
+			--libdir=${WINE_TARGET_LIB_DIR} \
 			--with-x \
 			--with-gstreamer \
 			--enable-win64
@@ -219,7 +239,7 @@ build_wine()
 
 		# Set opts for 32 bit build
 		WINE32OPTS=()
-		WINE32OPTS+=("--libdir=${OS_LIB_DIR_32}")
+		WINE32OPTS+=("--libdir=${WINE_TARGET_LIB_DIR_32}")
 		WINE32OPTS+=("--with-wine64=${WINE_GIT_ROOT}/wine-64-build")
 
 	elif [[ "${SYSTEM_ARCH}" == "i386" || "${SYSTEM_ARCH}" == "i686" ]]; then
@@ -253,8 +273,35 @@ build_wine()
 
 	fi
 
+	cat<<- EOF
+	----------------------------------------------
+	Installing Wine
+	----------------------------------------------
+
+	EOF
+	sleep 2s
+
 	# Install
-	sudo make install
+	echo "\n==> Installing Wine-32...\n"
+ 	cd "${WINE_GIT_ROOT}/wine-32-build"
+	
+	if [[ ${SYSTEM_ARCH}" == "i686" ]]; then
+
+		make prefix="${WINE_TARGET_DIR}" install
+
+	else
+
+		make prefix="${WINE_TARGET_DIR}" \
+		libdir="${WINE_TARGET_LIB_DIR_32}" \
+		dlldir="${WINE_TARGET_DLL_DIR_32}" install
+
+		echo "\n==> Installing Wine-64...\n"
+		cd "${WINE_GIT_ROOT}/wine-64-build"
+		make prefix="${WINE_TARGET_DIR}" \
+		libdir="${WINE_TARGET_LIB_DIR}" \
+		dlldir="${WINE_TARGET_DLL_DIR}" install
+
+	fi
 
 }
 
@@ -324,8 +371,6 @@ install_prereqs()
 	case $SYSTEM_OS in
 
 		Arch)
-		OS_LIB_DIR_64="/usr/lib"
-		OS_LIB_DIR_32="/usr/lib32"
 		install_packages_arch_linux
 		;;
 
@@ -343,6 +388,7 @@ main()
 {
 
 	# Install prereqs based on OS
+	env_setup
 	install_prereqs
 
 	# Build wine
