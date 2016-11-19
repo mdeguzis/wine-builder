@@ -8,6 +8,133 @@
 # Some build options mirrored from: 
 # https://git.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/wine
 
+function getScriptAbsoluteDir()
+{
+
+    # @description used to get the script path
+    # @param $1 the script $0 parameter
+    local SCRIPT_INVOKE_PATH="$1"
+    local CWD=$(pwd)
+
+    # absolute path ? if so, the first character is a /
+    if test "x${SCRIPT_INVOKE_PATH:0:1}" = 'x/'
+    then
+	RESULT=$(dirname "$SCRIPT_INVOKE_PATH")
+    else
+	RESULT=$(dirname "$CWD/$SCRIPT_INVOKE_PATH")
+    fi
+}
+
+function import()
+{
+
+    # @description importer routine to get external functionality.
+    # @description the first location searched is the script directory.
+    # @description if not found, search the module in the paths contained in ${SHELL_LIBRARY_PATH} environment variable
+    # @param $1 the .shinc file to import, without .shinc extension
+    MODULE=$1
+
+    if [ -f "${MODULE}.shinc" ]; then
+      source "${MODULE}.shinc"
+      echo "Loaded module $(basename ${MODULE}.shinc)"
+      return
+    fi
+
+    if test "x${MODULE}" == "x"
+    then
+	echo "${SCRIPT_NAME} : Unable to import unspecified module. Dying."
+        exit 1
+    fi
+
+	if test "x${SCRIPT_ABSOLUTE_DIR:-notset}" == "xnotset"
+    then
+	echo "${SCRIPT_NAME} : Undefined script absolute dir. Did you remove getScriptAbsoluteDir? Dying."
+        exit 1
+    fi
+
+	if test "x${SCRIPT_ABSOLUTE_DIR}" == "x"
+    then
+	echo "${SCRIPT_NAME} : empty script path. Dying."
+        exit 1
+    fi
+
+    if test -e "${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
+    then
+        # import from script directory
+        . "${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
+        echo "Loaded module ${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
+        return
+    elif test "x${SHELL_LIBRARY_PATH:-notset}" != "xnotset"
+    then
+        # import from the shell script library path
+        # save the separator and use the ':' instead
+        local saved_IFS="$IFS"
+        IFS=':'
+        for path in $SHELL_LIBRARY_PATH
+        do
+          if test -e "$path/$module.shinc"
+          then
+                . "$path/$module.shinc"
+                return
+          fi
+        done
+        # restore the standard separator
+        IFS="$saved_IFS"
+    fi
+    echo "$script_name : Unable to find module $module"
+    exit 1
+}
+
+
+function loadConfig()
+{
+    # @description Routine for loading configuration files that contain key-value pairs in the format KEY="VALUE"
+    # param $1 Path to the configuration file relate to this file.
+    local ${CONFIG_FILE}=$1
+    if test -e "${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
+    then
+        echo "Loaded configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
+        return
+    else
+	echo "Unable to find configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
+        exit 1
+    fi
+}
+
+function setDesktopEnvironment()
+{
+
+  ARG_UPPER_CASE="$1"
+  ARG_LOWER_CASE=`echo $1|tr '[:upper:]' '[:lower:]'`
+  XDG_DIR="XDG_"${ARG_UPPER_CASE}"_DIR"
+  xdg_dir="xdg_"${ARG_LOWER_CASE}"_dir"
+
+  setDir=`cat ${HOME}/.config/user-dirs.dirs | grep $XDG_DIR| sed s/$XDG_DIR/$xdg_dir/|sed s/HOME/home/`
+  target=`echo ${SET_DIR}| cut -f 2 -d "="| sed s,'${HOME}',${HOME},`
+
+  checkValid=`echo ${SET_DIR}|grep $xdg_dir=\"|grep home/`
+
+  if [ -n "${CHK_VALID}" ]; then
+    eval "${SET_DIR}"
+
+  else
+
+    echo "local desktop setting" ${XDG_DIR} "not found"
+
+  fi
+}
+
+source_modules()
+{
+
+	SCRIPT_INVOKE_PATH="$0"
+	SCRIPT_NAME=$(basename "$0")
+	getScriptAbsoluteDir "${SCRIPT_INVOKE_PATH}"
+	SCRIPT_ABSOLUTE_DIR="${RESULT}"
+	export SCRIPTDIR=`dirname "${SCRIPT_ABSOLUTE_DIR}"`
+
+}
+
 get_wine()
 {
 
@@ -178,133 +305,6 @@ build_wine()
 
 	# Install
 	sudo make install
-
-}
-
-function getScriptAbsoluteDir()
-{
-
-    # @description used to get the script path
-    # @param $1 the script $0 parameter
-    local SCRIPT_INVOKE_PATH="$1"
-    local CWD=$(pwd)
-
-    # absolute path ? if so, the first character is a /
-    if test "x${SCRIPT_INVOKE_PATH:0:1}" = 'x/'
-    then
-	RESULT=$(dirname "$SCRIPT_INVOKE_PATH")
-    else
-	RESULT=$(dirname "$CWD/$SCRIPT_INVOKE_PATH")
-    fi
-}
-
-function import()
-{
-
-    # @description importer routine to get external functionality.
-    # @description the first location searched is the script directory.
-    # @description if not found, search the module in the paths contained in ${SHELL_LIBRARY_PATH} environment variable
-    # @param $1 the .shinc file to import, without .shinc extension
-    MODULE=$1
-
-    if [ -f "${MODULE}.shinc" ]; then
-      source "${MODULE}.shinc"
-      echo "Loaded module $(basename ${MODULE}.shinc)"
-      return
-    fi
-
-    if test "x${MODULE}" == "x"
-    then
-	echo "${SCRIPT_NAME} : Unable to import unspecified module. Dying."
-        exit 1
-    fi
-
-	if test "x${SCRIPT_ABSOLUTE_DIR:-notset}" == "xnotset"
-    then
-	echo "${SCRIPT_NAME} : Undefined script absolute dir. Did you remove getScriptAbsoluteDir? Dying."
-        exit 1
-    fi
-
-	if test "x${SCRIPT_ABSOLUTE_DIR}" == "x"
-    then
-	echo "${SCRIPT_NAME} : empty script path. Dying."
-        exit 1
-    fi
-
-    if test -e "${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
-    then
-        # import from script directory
-        . "${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
-        echo "Loaded module ${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
-        return
-    elif test "x${SHELL_LIBRARY_PATH:-notset}" != "xnotset"
-    then
-        # import from the shell script library path
-        # save the separator and use the ':' instead
-        local saved_IFS="$IFS"
-        IFS=':'
-        for path in $SHELL_LIBRARY_PATH
-        do
-          if test -e "$path/$module.shinc"
-          then
-                . "$path/$module.shinc"
-                return
-          fi
-        done
-        # restore the standard separator
-        IFS="$saved_IFS"
-    fi
-    echo "$script_name : Unable to find module $module"
-    exit 1
-}
-
-
-function loadConfig()
-{
-    # @description Routine for loading configuration files that contain key-value pairs in the format KEY="VALUE"
-    # param $1 Path to the configuration file relate to this file.
-    local ${CONFIG_FILE}=$1
-    if test -e "${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
-    then
-        echo "Loaded configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
-        return
-    else
-	echo "Unable to find configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
-        exit 1
-    fi
-}
-
-function setDesktopEnvironment()
-{
-
-  ARG_UPPER_CASE="$1"
-  ARG_LOWER_CASE=`echo $1|tr '[:upper:]' '[:lower:]'`
-  XDG_DIR="XDG_"${ARG_UPPER_CASE}"_DIR"
-  xdg_dir="xdg_"${ARG_LOWER_CASE}"_dir"
-
-  setDir=`cat ${HOME}/.config/user-dirs.dirs | grep $XDG_DIR| sed s/$XDG_DIR/$xdg_dir/|sed s/HOME/home/`
-  target=`echo ${SET_DIR}| cut -f 2 -d "="| sed s,'${HOME}',${HOME},`
-
-  checkValid=`echo ${SET_DIR}|grep $xdg_dir=\"|grep home/`
-
-  if [ -n "${CHK_VALID}" ]; then
-    eval "${SET_DIR}"
-
-  else
-
-    echo "local desktop setting" ${XDG_DIR} "not found"
-
-  fi
-}
-
-source_modules()
-{
-
-	SCRIPT_INVOKE_PATH="$0"
-	SCRIPT_NAME=$(basename "$0")
-	getScriptAbsoluteDir "${SCRIPT_INVOKE_PATH}"
-	SCRIPT_ABSOLUTE_DIR="${RESULT}"
-	export SCRIPTDIR=`dirname "${SCRIPT_ABSOLUTE_DIR}"`
 
 }
 
