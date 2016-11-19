@@ -57,7 +57,7 @@ install_packages_arch_linux()
 		PKGS+=("lib32-samba")
 		PKGS+=("lib32-opencl-headers")
 
-	else
+	elif [[ "${SYSTEM_ARCH}" == "i686" ]]; then
 
 		# System arch libs
 		PKGS+=("gcc")
@@ -85,7 +85,7 @@ install_packages_arch_linux()
 		PKGS+=("opencl-headers")
 
 
-	elif [[ "${SYSTEM_ARCH}" == "i686" ]]; then
+	else
 
 		echo -e "Unsupport arch! Exiting..."
 		sleep 5s
