@@ -124,17 +124,6 @@ function setDesktopEnvironment()
   fi
 }
 
-source_modules()
-{
-
-	SCRIPT_INVOKE_PATH="$0"
-	SCRIPT_NAME=$(basename "$0")
-	getScriptAbsoluteDir "${SCRIPT_INVOKE_PATH}"
-	SCRIPT_ABSOLUTE_DIR="${RESULT}"
-	export SCRIPTDIR=`dirname "${SCRIPT_ABSOLUTE_DIR}"`
-
-}
-
 get_wine()
 {
 
