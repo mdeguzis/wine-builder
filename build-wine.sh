@@ -321,7 +321,7 @@ install_prereqs()
 	export SYSTEM_ARCH=$(uname -m)
 
 	# handle OS dependencies in .shinc modules
-	case $OS in
+	case $SYSTEM_OS in
 
 		Arch)
 		OS_LIB_DIR_64="/usr/lib"
