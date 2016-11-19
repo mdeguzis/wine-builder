@@ -11,6 +11,8 @@
 build_wine()
 {
 
+	SRC_URL="git://source.winehq.org/git/wine.git"
+
 	WINE_BUILD_ROOT="${HOME}/wine-builds"
 	WINE_GIT_ROOT="${WINE_BUILD_ROOT}/wine-git"
 
@@ -20,7 +22,6 @@ build_wine()
 	WINE_TARGET_LIB_DIR_64="${WINE_TARGET_DIR}/lib"	
 
 	mkdir -p "${WINE_BUILD_ROOT}"
-	mkdir -p "${WINE_GIT_ROOT}"
 	mkdir -p "${WINE_TARGET_DIR_32}"
 	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
 	mkdir -p "${WINE_TARGET_DIR_64}"
@@ -35,18 +36,49 @@ build_wine()
 
 	CURRENT_DIR=$(dirname $(readlink -f "$0"))
 
-	if [[ ! -d "${WINE_BUILD_ROOT}" ]]; then
-		echo "Cloning Wine source code"
-		git clone git://source.winehq.org/git/wine.git "${WINE_GIT_ROOT}"
+
+	echo -e "\n==> Obtaining upstream source code"
+
+	if [[ -d "${WINE_GIT_ROOT}" ]]; then
+
+		echo -e "\n==Info==\nGit source files already exist! Remove and [r]eclone or [c]lean? ?\n"
+		sleep 1s
+		read -ep "Choice: " git_choice
+
+		if [[ "$git_choice" == "r" ]]; then
+
+			echo -e "\n==> Removing and cloning repository again...\n"
+			sleep 2s
+			# reset retry flag
+			retry="no"
+			# clean and clone
+			sudo rm -rf "${WINE_GIT_ROOT}"
+			git clone "${SRC_URL}" "${WINE_GIT_ROOT}"
+
+		else
+
+			# Clean up and changes
+			echo "Updating Wine source code"
+			git checkout master
+			git reset --hard
+			git clean -dxf
+			git fetch origin
+
+
+		fi
+
+	else
+
+			echo -e "\n==> Git directory does not exist. cloning now...\n"
+			sleep 2s
+			# create and clone to dir
+			git clone "${SRC_URL}" "${WINE_GIT_ROOT}"
+
 	fi
+
 
 	# Prep git source
 	cd "${WINE_GIT_ROOT}"
-	echo "Updating Wine source code"
-	git checkout master
-	git reset --hard
-	git clean -dxf
-	git fetch origin
 	
 	if [[ "${WINE_VERSION}" == "" ]]; then
 
@@ -148,41 +180,14 @@ install_prereqs()
 {
 
 	# Test OS first, so we can allow configuration on multiple distros
-	OS=$(lsb_release -si)
+	export SYSTEM_OS=$(lsb_release -si)
+	export SYSTEM_ARCH=$(uname -m)
 
+	# handle OS dependencies in .shinc modules
 	case $OS in
 
 		Arch)
-			PKGS="
-			giflib                lib32-giflib
-			libpng                lib32-libpng
-			gnutls                lib32-gnutls
-			libxinerama           lib32-libxinerama
-			libxcomposite         lib32-libxcomposite
-			libxmu                lib32-libxmu
-			libxxf86vm            lib32-libxxf86vm
-			libldap               lib32-libldap
-			mpg123                lib32-mpg123
-			openal                lib32-openal
-			v4l-utils             lib32-v4l-utils
-			libpulse              lib32-libpulse
-			alsa-lib              lib32-alsa-lib
-			libxcomposite         lib32-libxcomposite
-			mesa                  lib32-mesa
-			mesa-libgl            lib32-mesa-libgl
-			libcl                 lib32-libcl
-			libxslt               lib32-libxslt
-			gst-plugins-base-libs lib32-gst-plugins-base-libs
-			samba
-			opencl-headers"
-
-			for PKG in ${PKGS}; 
-			do
-
-				sudo pacman -S --noconfirm ${PKG}
-
-			done
-
+		install_packages_arch_linux
 		;;
 
 		*)
@@ -195,9 +200,136 @@ install_prereqs()
 
 }
 
+function getScriptAbsoluteDir()
+{
 
+    # @description used to get the script path
+    # @param $1 the script $0 parameter
+    local SCRIPT_INVOKE_PATH="$1"
+    local CWD=$(pwd)
+
+    # absolute path ? if so, the first character is a /
+    if test "x${SCRIPT_INVOKE_PATH:0:1}" = 'x/'
+    then
+	RESULT=$(dirname "$SCRIPT_INVOKE_PATH")
+    else
+	RESULT=$(dirname "$CWD/$SCRIPT_INVOKE_PATH")
+    fi
+}
+
+function import()
+{
+
+    # @description importer routine to get external functionality.
+    # @description the first location searched is the script directory.
+    # @description if not found, search the module in the paths contained in ${SHELL_LIBRARY_PATH} environment variable
+    # @param $1 the .shinc file to import, without .shinc extension
+    MODULE=$1
+
+    if [ -f "${MODULE}.shinc" ]; then
+      source "${MODULE}.shinc"
+      echo "Loaded module $(basename ${MODULE}.shinc)"
+      return
+    fi
+
+    if test "x${MODULE}" == "x"
+    then
+	echo "${SCRIPT_NAME} : Unable to import unspecified module. Dying."
+        exit 1
+    fi
+
+	if test "x${SCRIPT_ABSOLUTE_DIR:-notset}" == "xnotset"
+    then
+	echo "${SCRIPT_NAME} : Undefined script absolute dir. Did you remove getScriptAbsoluteDir? Dying."
+        exit 1
+    fi
+
+	if test "x${SCRIPT_ABSOLUTE_DIR}" == "x"
+    then
+	echo "${SCRIPT_NAME} : empty script path. Dying."
+        exit 1
+    fi
+
+    if test -e "${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
+    then
+        # import from script directory
+        . "${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
+        echo "Loaded module ${SCRIPT_ABSOLUTE_DIR}/${MODULE}.shinc"
+        return
+    elif test "x${SHELL_LIBRARY_PATH:-notset}" != "xnotset"
+    then
+        # import from the shell script library path
+        # save the separator and use the ':' instead
+        local saved_IFS="$IFS"
+        IFS=':'
+        for path in $SHELL_LIBRARY_PATH
+        do
+          if test -e "$path/$module.shinc"
+          then
+                . "$path/$module.shinc"
+                return
+          fi
+        done
+        # restore the standard separator
+        IFS="$saved_IFS"
+    fi
+    echo "$script_name : Unable to find module $module"
+    exit 1
+}
+
+
+function loadConfig()
+{
+    # @description Routine for loading configuration files that contain key-value pairs in the format KEY="VALUE"
+    # param $1 Path to the configuration file relate to this file.
+    local ${CONFIG_FILE}=$1
+    if test -e "${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
+    then
+        echo "Loaded configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
+        return
+    else
+	echo "Unable to find configuration file ${SCRIPT_ABSOLUTE_DIR}/${CONFIG_FILE}"
+        exit 1
+    fi
+}
+
+function setDesktopEnvironment()
+{
+
+  ARG_UPPER_CASE="$1"
+  ARG_LOWER_CASE=`echo $1|tr '[:upper:]' '[:lower:]'`
+  XDG_DIR="XDG_"${ARG_UPPER_CASE}"_DIR"
+  xdg_dir="xdg_"${ARG_LOWER_CASE}"_dir"
+
+  setDir=`cat ${HOME}/.config/user-dirs.dirs | grep $XDG_DIR| sed s/$XDG_DIR/$xdg_dir/|sed s/HOME/home/`
+  target=`echo ${SET_DIR}| cut -f 2 -d "="| sed s,'${HOME}',${HOME},`
+
+  checkValid=`echo ${SET_DIR}|grep $xdg_dir=\"|grep home/`
+
+  if [ -n "${CHK_VALID}" ]; then
+    eval "${SET_DIR}"
+
+  else
+
+    echo "local desktop setting" ${XDG_DIR} "not found"
+
+  fi
+}
+
+source_modules()
+{
+
+	SCRIPT_INVOKE_PATH="$0"
+	SCRIPT_NAME=$(basename "$0")
+	getScriptAbsoluteDir "${SCRIPT_INVOKE_PATH}"
+	SCRIPT_ABSOLUTE_DIR="${RESULT}"
+	export SCRIPTDIR=`dirname "${SCRIPT_ABSOLUTE_DIR}"`
+
+}
+
+##########################
 # source options
-
+##########################
 
 while :; do
 	case $1 in
@@ -240,10 +372,17 @@ done
 main()
 {
 
-	# Install prereqs based on OS
-	#install_prereqs
+	SCRIPTDIR=$(pwd)
 
-	# just build wine for now
+	
+	# load script modules
+	import "${SCRIPTDIR}/modules/arch-linux.txt"
+
+
+	# Install prereqs based on OS
+	install_prereqs
+
+	# build wine
 	build_wine
 
 }
