@@ -258,6 +258,20 @@ build_wine()
 
 }
 
+
+##########################
+# source modules
+##########################
+
+# Source env for imports
+script_invoke_path="$0"
+script_name=$(basename "$0")
+getScriptAbsoluteDir "$script_invoke_path"
+script_absolute_dir=$RESULT
+
+# load script modules
+import "${script_absolute_dir}/modules/arch-linux"
+
 ##########################
 # source options
 ##########################
@@ -327,17 +341,6 @@ install_prereqs()
 
 main()
 {
-	# set pwd
-	SCRIPTDIR=$(pwd)
-
-	# Source env for imports
-	script_invoke_path="$0"
-	script_name=$(basename "$0")
-	getScriptAbsoluteDir "$script_invoke_path"
-	script_absolute_dir=$RESULT
-
-	# load script modules
-	import "${SCRIPTDIR}/modules/arch-linux"
 
 	# Install prereqs based on OS
 	install_prereqs
