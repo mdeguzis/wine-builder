@@ -100,7 +100,7 @@ install_packages_arch_linux()
 
 		if ! pacman -Q ${PKG}; then
 
-			sudo pacman -S --noconfirm ${PKG}
+			sudo pacman -S ${PKG}
 
 		fi
 
