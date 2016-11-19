@@ -366,11 +366,20 @@ install_prereqs()
 
 main()
 {
-
+	# set pwd
 	SCRIPTDIR=$(pwd)
+
+	# Source env for imports
+	script_invoke_path="$0"
+	script_name=$(basename "$0")
+	getScriptAbsoluteDir "$script_invoke_path"
+	script_absolute_dir=$RESULT
+
+	# Import script modules
+	import "${SCRIPTDIR}/modues/arch-linux"
 	
 	# load script modules
-	import "${SCRIPTDIR}/modules/arch-linux.txt"
+	import "${SCRIPTDIR}/modules/arch-linux"
 
 	# Install prereqs based on OS
 	install_prereqs
