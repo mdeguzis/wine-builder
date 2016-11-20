@@ -85,32 +85,6 @@ function import()
     exit 1
 }
 
-env_setup()
-{
-
-
-	WINE_BUILD_ROOT="${HOME}/wine-builds"
-	WINE_GIT_ROOT="${WINE_BUILD_ROOT}/wine-git"
-	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
-
-	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
-	WINE_TARGET_DLL_DIR"${WINE_TARGET_LIB_DIR_64}/wine"
-
-	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
-	WINE_TARGET_DLL_DIR_32"${WINE_TARGET_LIB_DIR_32}/wine"
-
-	mkdir -p "${WINE_BUILD_ROOT}"
-	mkdir -p "${WINE_TARGET_DIR}"
-	mkdir -p "${WINE_TARGET_LIB_DIR}"
-	mkdir -p "${WINE_TARGET_DLL_DIR}"
-	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
-	mkdir -p "${WINE_TARGET_DLL_DIR_32}"
-
-	CURRENT_DIR=$(dirname $(readlink -f "$0"))
-
-
-}
-
 get_wine()
 {
 
@@ -161,6 +135,26 @@ build_wine()
 
 	# Notes
 	# Verified install files with `make -n install`
+	
+	# set env
+	WINE_BUILD_ROOT="${HOME}/wine-builds"
+	WINE_GIT_ROOT="${WINE_BUILD_ROOT}/wine-git"
+	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
+
+	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
+	WINE_TARGET_DLL_DIR"${WINE_TARGET_LIB_DIR_64}/wine"
+
+	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
+	WINE_TARGET_DLL_DIR_32"${WINE_TARGET_LIB_DIR_32}/wine"
+
+	mkdir -p "${WINE_BUILD_ROOT}"
+	mkdir -p "${WINE_TARGET_DIR}"
+	mkdir -p "${WINE_TARGET_LIB_DIR}"
+	mkdir -p "${WINE_TARGET_DLL_DIR}"
+	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
+	mkdir -p "${WINE_TARGET_DLL_DIR_32}"
+
+	CURRENT_DIR=$(dirname $(readlink -f "$0"))
 
 	# Prep git source
 	cd "${WINE_GIT_ROOT}"
@@ -388,7 +382,6 @@ main()
 {
 
 	# Install prereqs based on OS
-	env_setup
 	install_prereqs
 
 	# Build wine
