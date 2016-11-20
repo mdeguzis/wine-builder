@@ -184,10 +184,6 @@ build_wine()
 	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
 	mkdir -p "${WINE_TARGET_DLL_DIR_32}"
 
-	# Get rid of old build dirs
-	rm -rf "${WINE_GIT_ROOT}/wine-{32,64}-build"
-	mkdir -p "${WINE_GIT_ROOT}/wine-{32,64}-build"
-
 	# Check if an existing wine build result exists
 	
 	if [[ -d "${WINE_TARGET_DIR}" ]]; then
@@ -219,6 +215,12 @@ build_wine()
 		mkdir -p "${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
 
 	fi
+
+	# Get rid of old build dirs
+	rm -rf "${WINE_GIT_ROOT}/wine-32-build"
+	rm -rf "${WINE_GIT_ROOT}/wine-64-build"
+	mkdir -p "${WINE_GIT_ROOT}/wine-32-build"
+	mkdir -p "${WINE_GIT_ROOT}/wine-64-build"
 
 	# clean makefiles (just in case)
 	cd "${WINE_GIT_ROOT}"
