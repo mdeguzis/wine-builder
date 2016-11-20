@@ -203,7 +203,7 @@ build_wine()
 		echo "Remove? "
 		read -erp "Choice [y/n]: " WINE_REMOVE_CHECK
 		
-		if [[ "${WINE_REMOVE_CHECK}" == "y]
+		if [[ "${WINE_REMOVE_CHECK}" == "y" ]]; then
 		
 			rm -rf 	"${WINE_TARGET_DIR}"
 
