@@ -361,6 +361,14 @@ build_wine()
 
 }
 
+cat<<- EOF
+
+------------------------------------------
+wine-builder
+------------------------------------------
+
+EOF
+sleep 2s
 
 ##########################
 # source modules
@@ -373,7 +381,7 @@ getScriptAbsoluteDir "$script_invoke_path"
 script_absolute_dir=$RESULT
 
 # load script modules
-echo -e "\n==> Loading script modules\n
+echo -e "\n==> Loading script modules\n"
 
 import "${script_absolute_dir}/modules/arch-linux"
 import "${script_absolute_dir}/modules/debian"
