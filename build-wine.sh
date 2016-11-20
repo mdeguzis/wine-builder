@@ -222,10 +222,6 @@ build_wine()
 	mkdir -p "${WINE_GIT_ROOT}/wine-32-build"
 	mkdir -p "${WINE_GIT_ROOT}/wine-64-build"
 
-	# clean makefiles (just in case)
-	cd "${WINE_GIT_ROOT}"
-	make distclean
-
 	# Build
 	if [[ "${SYSTEM_ARCH}" == "x86_64" ]]; then
 
@@ -242,6 +238,7 @@ build_wine()
 
 		sleep 2s
 
+		make distclean
 		../configure \
 			--prefix=${WINE_TARGET_DIR}/ \
 			--libdir=${WINE_TARGET_LIB_DIR} \
@@ -269,6 +266,7 @@ build_wine()
 
 		cd "${WINE_BUILD_ROOT}/wine-32-build"
 
+		make distclean
 		../configure \
 			--prefix=${WINE_TARGET_DIR}/ \
 			--libdir=${WINE_TARGET_LIB_DIR_32} \
