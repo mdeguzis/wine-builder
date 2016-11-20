@@ -306,7 +306,7 @@ build_wine()
 	EOF
 	sleep 3s
 
-	cd "${WINE_BUILD_ROOT}/wine-32-build"
+	cd "${WINE_GIT_ROOT}/wine-32-build"
 
 	make distclean
 	../configure \
