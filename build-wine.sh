@@ -142,20 +142,8 @@ build_wine()
 	# set env
 	WINE_BUILD_ROOT="${HOME}/wine-builds"
 	WINE_GIT_ROOT="${WINE_BUILD_ROOT}/wine-git"
-	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
-
-	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
-	WINE_TARGET_DLL_DIR"${WINE_TARGET_LIB_DIR_64}/wine"
-
-	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
-	WINE_TARGET_DLL_DIR_32"${WINE_TARGET_LIB_DIR_32}/wine"
 
 	mkdir -p "${WINE_BUILD_ROOT}"
-	mkdir -p "${WINE_TARGET_DIR}"
-	mkdir -p "${WINE_TARGET_LIB_DIR}"
-	mkdir -p "${WINE_TARGET_DLL_DIR}"
-	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
-	mkdir -p "${WINE_TARGET_DLL_DIR_32}"
 
 	CURRENT_DIR=$(dirname $(readlink -f "$0"))
 
@@ -182,6 +170,19 @@ build_wine()
 		git checkout wine-$WINE_VERSION
 
 	fi
+
+	# Set the rest of the vars
+	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
+	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
+	WINE_TARGET_DLL_DIR"${WINE_TARGET_LIB_DIR_64}/wine"
+	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
+	WINE_TARGET_DLL_DIR_32"${WINE_TARGET_LIB_DIR_32}/wine"
+
+	mkdir -p "${WINE_TARGET_DIR}"
+	mkdir -p "${WINE_TARGET_LIB_DIR}"
+	mkdir -p "${WINE_TARGET_DLL_DIR}"
+	mkdir -p "${WINE_TARGET_LIB_DIR_32}"
+	mkdir -p "${WINE_TARGET_DLL_DIR_32}"
 
 	# Get rid of old build dirs
 	rm -rf "${WINE_GIT_ROOT}/wine-{32,64}-build"
