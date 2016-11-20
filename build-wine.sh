@@ -89,7 +89,9 @@ get_wine()
 {
 
 	SRC_URL="git://source.winehq.org/git/wine.git"
-	echo -e "\n==> Obtaining upstream source code"
+	echo -e "\n==> Obtaining upstream source code" 
+
+	cd ${WINE_BUILD_ROOT}"
 
 	if [[ -d "${WINE_GIT_ROOT}" ]]; then
 
@@ -111,6 +113,7 @@ get_wine()
 
 			# Clean up and changes
 			echo "Updating Wine source code"
+			cd "${WINE_GIT_ROOT}"
 			git checkout master
 			git reset --hard
 			git clean -dxf
