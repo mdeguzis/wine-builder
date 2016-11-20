@@ -174,9 +174,9 @@ build_wine()
 	# Set the rest of the vars
 	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
 	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
-	WINE_TARGET_DLL_DIR"${WINE_TARGET_LIB_DIR_64}/wine"
+	WINE_TARGET_DLL_DIR="${WINE_TARGET_LIB_DIR_64}/wine"
 	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
-	WINE_TARGET_DLL_DIR_32"${WINE_TARGET_LIB_DIR_32}/wine"
+	WINE_TARGET_DLL_DIR_32="${WINE_TARGET_LIB_DIR_32}/wine"
 
 	mkdir -p "${WINE_TARGET_DIR}"
 	mkdir -p "${WINE_TARGET_LIB_DIR}"
@@ -199,8 +199,19 @@ build_wine()
 		before continuing...
 
 		EOF
-		sleep 3s
-		exit 1
+		
+		echo "Remove? "
+		read -erp "Choice [y/n]: " WINE_REMOVE_CHECK
+		
+		if [[ "${WINE_REMOVE_CHECK}" == "y]
+		
+			rm -rf 	"${WINE_TARGET_DIR}"
+
+		else
+			sleep 3s
+			exit 1
+
+		fi
 
 	else
 	
