@@ -253,30 +253,6 @@ build_wine()
 		WINE32OPTS+=("--libdir=${WINE_TARGET_LIB_DIR_32}")
 		WINE32OPTS+=("--with-wine64=${WINE_GIT_ROOT}/wine-64-build")
 
-	elif [[ "${SYSTEM_ARCH}" == "i386" || "${SYSTEM_ARCH}" == "i686" ]]; then
-	
-		cat<<- EOF
-
-		----------------------------------------------
-		Building ${WINE_VERSION} for 32 bit"
-		----------------------------------------------
-
-		EOF
-		sleep 3s
-
-		cd "${WINE_BUILD_ROOT}/wine-32-build"
-
-		make distclean
-		../configure \
-			--prefix=${WINE_TARGET_DIR}/ \
-			--libdir=${WINE_TARGET_LIB_DIR_32} \
-			--with-x \
-			--with-gstreamer \
-			"${WINE32OPTS[@]}"
-
-		make
-
-
 	else
 
 		echo -e "\nUnsupported arch! Exiting..."
@@ -284,6 +260,30 @@ build_wine()
 		exit 1
 
 	fi
+
+	
+	# Always build
+	cat<<- EOF
+
+	----------------------------------------------
+	Building ${WINE_VERSION} for 32 bit"
+	----------------------------------------------
+
+	EOF
+	sleep 3s
+
+	cd "${WINE_BUILD_ROOT}/wine-32-build"
+
+	make distclean
+	../configure \
+		--prefix=${WINE_TARGET_DIR}/ \
+		--libdir=${WINE_TARGET_LIB_DIR_32} \
+		--with-x \
+		--with-gstreamer \
+		"${WINE32OPTS[@]}"
+
+	make
+
 
 	cat<<- EOF
 
