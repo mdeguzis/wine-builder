@@ -440,6 +440,8 @@ install_prereqs()
 	case $SYSTEM_OS in
 
 		Arch)
+		# Arch needs PKG_CONFIG_PATH set (see wine PKGBUILD)
+		export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
 		install_packages_arch_linux
 		;;
 
