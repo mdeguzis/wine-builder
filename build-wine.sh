@@ -284,7 +284,7 @@ build_wine()
 		CONFIGURE_LOG="${WINE_GIT_ROOT}/wine-64-build/config.log"
 		test_dependencies
 	
-		make
+		make || exit 1
 
 		# Set opts for 32 bit build
 		WINE32OPTS=()
@@ -323,7 +323,7 @@ build_wine()
 	CONFIGURE_LOG="${WINE_GIT_ROOT}/wine-32-build/config.log"
 	test_dependencies
 
-	make
+	make || exit 1
 
 	cat<<- EOF
 
