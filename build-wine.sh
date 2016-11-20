@@ -198,6 +198,7 @@ build_wine()
 		# get user choice
 		sleep 0.2s
 		read -erp "Release Choice: " WINE_VERSION
+		git checkout $WINE_VERSION
 
 	else
 
