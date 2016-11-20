@@ -146,6 +146,9 @@ test_dependencies()
 		It is recommended you exit and resolve these first.
 		Continuing may result in missing features.
 
+		You can review this log at:
+		${CONFIGURE_LOG}
+
 		Abort?
 
 		EOF
@@ -278,6 +281,7 @@ build_wine()
 			--enable-win64
 
 		# test for missing dependencies, ask to abort
+		CONFIGURE_LOG="${WINE_GIT_ROOT}/wine-64-build/config.log"
 		test_dependencies
 	
 		make
@@ -317,6 +321,7 @@ build_wine()
 		"${WINE32OPTS[@]}"
 
 	# test for missing dependencies, ask to abort
+	CONFIGURE_LOG="${WINE_GIT_ROOT}/wine-32-build/config.log"
 	test_dependencies
 
 	make
