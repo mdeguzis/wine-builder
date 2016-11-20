@@ -98,7 +98,11 @@ install_packages_arch_linux()
 	for PKG in "${PKGS[@]}"
 	do
 
-		if ! pacman -Q ${PKG} > /dev/null; then
+		if pacman -Q ${PKG} > /dev/null; then
+
+			echo "Package: ${PKG} [OK]"
+
+		else
 
 			sudo pacman -S ${PKG}
 
