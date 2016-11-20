@@ -1,6 +1,6 @@
 #!/bin/bash
 
-install_packages_arch_linux()
+install_packages_debian()
 {
 	# Reset PKG
 	PKG=()
