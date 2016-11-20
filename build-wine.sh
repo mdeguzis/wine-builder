@@ -159,6 +159,9 @@ build_wine()
 
 	CURRENT_DIR=$(dirname $(readlink -f "$0"))
 
+	# fetch wine
+	get_wine
+
 	# Prep git source
 	cd "${WINE_GIT_ROOT}"
 	
@@ -388,7 +391,6 @@ main()
 	install_prereqs
 
 	# Build wine
-	get_wine
 	build_wine
 
 }
