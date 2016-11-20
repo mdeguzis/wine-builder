@@ -201,7 +201,7 @@ build_wine()
 
 	else
 
-		git checkout wine-$WINE_VERSION
+		git checkout $WINE_VERSION
 
 	fi
 
@@ -240,7 +240,7 @@ build_wine()
 	else
 	
 		# Make sure our destination exists
-		mkdir -p "${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
+		mkdir -p "${WINE_BUILD_ROOT}/$WINE_VERSION"
 
 	fi
 
