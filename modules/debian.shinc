@@ -1,0 +1,109 @@
+#!/bin/bash
+
+install_packages_arch_linux()
+{
+	# Reset PKG
+	PKG=()
+
+	if [[ "${SYSTEM_ARCH}" == "x86_64" ]]; then
+
+		# System arch libs
+		PKGS+=("giflib")
+		PKGS+=("libpng")
+		PKGS+=("gnutls")
+		PKGS+=("libxinerama")
+		PKGS+=("libxcomposite")
+		PKGS+=("libxmu")
+		PKGS+=("libxxf86vm")
+		PKGS+=("libldap")
+		PKGS+=("mpg123")
+		PKGS+=("openal")
+		PKGS+=("v4l-utils")
+		PKGS+=("libpulse")
+		PKGS+=("alsa-lib")
+		PKGS+=("libxcomposite")
+		PKGS+=("mesa")
+		PKGS+=("mesa-libgl")
+		PKGS+=("libcl")
+		PKGS+=("libxslt")
+		PKGS+=("gst-plugins-base-libs")
+		PKGS+=("libxslt")
+		PKGS+=("samba")
+		PKGS+=("opencl-headers")
+
+		# 32 bit libs
+		PKGS+=("giflib:i386")
+		PKGS+=("libpng:i386")
+		PKGS+=("gnutls:i386")
+		PKGS+=("libxinerama:i386")
+		PKGS+=("libxcomposite:i386")
+		PKGS+=("libxmu:i386")
+		PKGS+=("libxxf86vm:i386")
+		PKGS+=("libldap:i386")
+		PKGS+=("mpg123:i386")
+		PKGS+=("openal:i386")
+		PKGS+=("v4l-utils:i386")
+		PKGS+=("libpulse:i386")
+		PKGS+=("alsa-lib:i386")
+		PKGS+=("libxcomposite:i386")
+		PKGS+=("mesa:i386")
+		PKGS+=("mesa-libgl:i386")
+		PKGS+=("libcl:i386")
+		PKGS+=("libxslt:i386")
+		PKGS+=("gst-plugins-base-libs:i386")
+		PKGS+=("libxslt:i386")
+		PKGS+=("samba:i386")
+		PKGS+=("opencl-headers:i386")
+
+	elif [[ "${SYSTEM_ARCH}" == "i686" ]]; then
+
+		# System arch libs
+		PKGS+=("gcc")
+		PKGS+=("giflib")
+		PKGS+=("libpng")
+		PKGS+=("gnutls")
+		PKGS+=("libxinerama")
+		PKGS+=("libxcomposite")
+		PKGS+=("libxmu")
+		PKGS+=("libxxf86vm")
+		PKGS+=("libldap")
+		PKGS+=("mpg123")
+		PKGS+=("openal")
+		PKGS+=("v4l-utils")
+		PKGS+=("libpulse")
+		PKGS+=("alsa-lib")
+		PKGS+=("libxcomposite")
+		PKGS+=("mesa")
+		PKGS+=("mesa-libgl")
+		PKGS+=("libcl")
+		PKGS+=("libxslt")
+		PKGS+=("gst-plugins-base-libs")
+		PKGS+=("libxslt")
+		PKGS+=("samba")
+		PKGS+=("opencl-headers")
+
+
+	else
+
+		echo -e "Unsupport arch! Exiting..."
+		sleep 5s
+		exit 1
+
+	fi
+
+	# Install packages
+	# quotes needed on entry to preven globbing on directory creation!
+	# Expanding arrays involves [@] and {}
+
+	for PKG in "${PKGS[@]}"
+	do
+
+		if ! sudo apt-get install ${PKG} &> /dev/null; then
+
+			sudo apt-get install ${PKG}
+
+		fi
+
+	done
+
+}
