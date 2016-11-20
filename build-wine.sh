@@ -471,8 +471,6 @@ install_prereqs()
 
 	esac
 
-	if 
-
 	echo -e "\n==Build complete!==\n"
 
 }
