@@ -285,7 +285,7 @@ build_wine()
 	echo "\n==> Installing Wine-32...\n"
  	cd "${WINE_GIT_ROOT}/wine-32-build"
 	
-	if [[ ${SYSTEM_ARCH}" == "i686" ]]; then
+	if [[ "${SYSTEM_ARCH}" == "i686" ]]; then
 
 		make prefix="${WINE_TARGET_DIR}" install
 
