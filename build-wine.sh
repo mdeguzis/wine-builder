@@ -218,7 +218,7 @@ build_wine()
 
 		cat <<-EOF
 
-		NOTICE: You may have already built this version nof wine.
+		NOTICE: You may have already built this version sof wine.
 		Please check/remove ${WINE_BUILD_ROOT}/wine-$WINE_VERSION
 		before continuing...
 
