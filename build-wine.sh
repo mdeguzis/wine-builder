@@ -434,7 +434,7 @@ install_prereqs()
 	export SYSTEM_OS=$(lsb_release -si)
 	export SYSTEM_ARCH=$(uname -m)
 
-	echo -e "\n==> Asssesing distro-specific dependencies\n
+	echo -e "\n==> Asssesing distro-specific dependencies\n"
 	sleep 2s
 
 	# handle OS dependencies in .shinc modules
