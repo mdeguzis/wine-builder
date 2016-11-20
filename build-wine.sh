@@ -373,6 +373,8 @@ getScriptAbsoluteDir "$script_invoke_path"
 script_absolute_dir=$RESULT
 
 # load script modules
+echo -e "\n==> Loading script modules\n
+
 import "${script_absolute_dir}/modules/arch-linux"
 import "${script_absolute_dir}/modules/debian"
 
@@ -423,6 +425,9 @@ install_prereqs()
 	# Test OS first, so we can allow configuration on multiple distros
 	export SYSTEM_OS=$(lsb_release -si)
 	export SYSTEM_ARCH=$(uname -m)
+
+	echo -e "\n==> Asssesing distro-specific dependencies\n
+	sleep 2s
 
 	# handle OS dependencies in .shinc modules
 	case $SYSTEM_OS in
