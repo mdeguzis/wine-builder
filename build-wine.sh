@@ -315,7 +315,6 @@ build_wine()
 	make distclean
 	../configure \
 		--prefix=${WINE_TARGET_DIR}/ \
-		--libdir=${WINE_TARGET_LIB_DIR_32} \
 		--with-x \
 		--with-gstreamer \
 		"${WINE32OPTS[@]}"
@@ -340,13 +339,13 @@ build_wine()
 
 	cd "${WINE_GIT_ROOT}/wine-32-build"
 	
-	if [[ "${SYSTEM_ARCH}" == "i686" ]]; then
+	if [[ "${SYSTEM_ARCH}" == "i686" || "${SYSTEM_ARCH}" == "i386" ]]; then
 
 		make prefix="${WINE_TARGET_DIR}" install
 
 	else
 
-		make prefix="${WINE_TARGET_DIR}" install \
+		make prefix="${WINE_TARGET_DIR}" \
 		libdir="${WINE_TARGET_LIB_DIR_32}" \
 		dlldir="${WINE_TARGET_DLL_DIR_32}" install
 
