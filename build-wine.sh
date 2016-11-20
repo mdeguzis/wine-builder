@@ -232,7 +232,7 @@ build_wine()
 		----------------------------------------------
 
 		EOF
-		sleep 2s
+		sleep 4s
 
 		cd "${WINE_GIT_ROOT}/wine-64-build"
 
@@ -262,7 +262,7 @@ build_wine()
 		----------------------------------------------
 
 		EOF
-		sleep 2s
+		sleep 4s
 
 		cd "${WINE_BUILD_ROOT}/wine-32-build"
 
@@ -295,7 +295,8 @@ build_wine()
 
 	# Install
 	echo "\n==> Installing Wine-32...\n"
- 	cd "${WINE_GIT_ROOT}/wine-32-build"
+
+	cd "${WINE_GIT_ROOT}/wine-32-build"
 	
 	if [[ "${SYSTEM_ARCH}" == "i686" ]]; then
 
@@ -308,6 +309,7 @@ build_wine()
 		dlldir="${WINE_TARGET_DLL_DIR_32}" install
 
 		echo "\n==> Installing Wine-64...\n"
+
 		cd "${WINE_GIT_ROOT}/wine-64-build"
 		make prefix="${WINE_TARGET_DIR}" \
 		libdir="${WINE_TARGET_LIB_DIR}" \
@@ -330,6 +332,7 @@ script_absolute_dir=$RESULT
 
 # load script modules
 import "${script_absolute_dir}/modules/arch-linux"
+import "${script_absolute_dir}/modules/debian"
 
 ##########################
 # source options
@@ -386,9 +389,27 @@ install_prereqs()
 		install_packages_arch_linux
 		;;
 
+		SteamOS|Debian)
+		install_packages_debian
+		;;
+
 		*)
-		echo "Unsupported OS!"
-		exit 1
+		UNSUPOPRTED="true"
+		cat<<- EOF
+
+		NOTICE: Non-support OS detected. Proceed at your own risk!
+		You may encounter dependency errors. Continue?
+		
+		EOF
+		
+		read -erp "Choice [y/n]: " CONTINUE_CHOICE
+		
+		if [[ "${CONTINUE_CHOICE}" == "n" ]]; then
+
+			exit 1
+
+		fi
+
 		;;
 
 	esac
