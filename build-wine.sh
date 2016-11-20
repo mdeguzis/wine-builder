@@ -133,6 +133,37 @@ get_wine()
 
 }
 
+test_dependencies()
+{
+
+	MISSING_DEPS=$(cat config.log | grep "files not found")
+
+	if [[ "${MISSING_DEPS}" != "" ]]; then
+
+		cat<<- EOF
+
+		WARNING: You have missing depenencies!
+		It is recommended you exit and resolve these first.
+		Continuing may result in missing features.
+
+		Abort?
+
+		EOF
+
+
+		read -erp "Choice [y/n]: " ABORT_CHOICE
+
+		if [[ "${ABORT_CHOICE}" == "y" ]]; then
+
+			exit 1
+
+		fi
+
+
+	fi
+
+}
+
 build_wine()
 {
 
@@ -247,32 +278,8 @@ build_wine()
 			--enable-win64
 
 		# test for missing dependencies, ask to abort
-		MISSING_DEPS=$(cat config.log | grep "files not found")
-		
-		if [[ "${MISSING_DEPS}" != "" ]]; then
-
-			cat<<- EOF
-			
-			WARNING: You have missing depenencies!
-			It is recommended you exit and resolve these first.
-			Continuing may result in missing features.
-
-			Abort?
-
-			EOF
-
-			
-			read -erp "Choice [y/n]: " ABORT_CHOICE
-
-			if [[ "${ABORT_CHOICE}" == "y" ]]; then
-
-				exit 1
-
-			fi
-
-
-		fi
-
+		test_dependencies
+	
 		make
 
 		# Set opts for 32 bit build
@@ -309,8 +316,10 @@ build_wine()
 		--with-gstreamer \
 		"${WINE32OPTS[@]}"
 
-	make
+	# test for missing dependencies, ask to abort
+	test_dependencies
 
+	make
 
 	cat<<- EOF
 
