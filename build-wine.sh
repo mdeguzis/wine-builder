@@ -91,7 +91,7 @@ get_wine()
 	SRC_URL="git://source.winehq.org/git/wine.git"
 	echo -e "\n==> Obtaining upstream source code" 
 
-	cd ${WINE_BUILD_ROOT}"
+	cd "${WINE_BUILD_ROOT}"
 
 	if [[ -d "${WINE_GIT_ROOT}" ]]; then
 
