@@ -174,7 +174,7 @@ build_wine()
 	# Set the rest of the vars
 	WINE_TARGET_DIR="${WINE_BUILD_ROOT}/wine-$WINE_VERSION"
 	WINE_TARGET_LIB_DIR="${WINE_TARGET_DIR}/lib"
-	WINE_TARGET_DLL_DIR="${WINE_TARGET_LIB_DIR_64}/wine"
+	WINE_TARGET_DLL_DIR="${WINE_TARGET_LIB_DIR}/wine"
 	WINE_TARGET_LIB_DIR_32="${WINE_TARGET_DIR}/lib32"
 	WINE_TARGET_DLL_DIR_32="${WINE_TARGET_LIB_DIR_32}/wine"
 
@@ -286,6 +286,7 @@ build_wine()
 	fi
 
 	cat<<- EOF
+
 	----------------------------------------------
 	Installing Wine
 	----------------------------------------------
@@ -294,7 +295,7 @@ build_wine()
 	sleep 2s
 
 	# Install
-	echo "\n==> Installing Wine-32...\n"
+	echo -e "\n==> Installing Wine-32...\n"
 
 	cd "${WINE_GIT_ROOT}/wine-32-build"
 	
@@ -304,11 +305,11 @@ build_wine()
 
 	else
 
-		make prefix="${WINE_TARGET_DIR}" \
+		make prefix="${WINE_TARGET_DIR}" install \
 		libdir="${WINE_TARGET_LIB_DIR_32}" \
 		dlldir="${WINE_TARGET_DLL_DIR_32}" install
 
-		echo "\n==> Installing Wine-64...\n"
+		echo -e "\n==> Installing Wine-64...\n"
 
 		cd "${WINE_GIT_ROOT}/wine-64-build"
 		make prefix="${WINE_TARGET_DIR}" \
@@ -429,4 +430,4 @@ main()
 }
 
 # Start main
-main
+main 2>&1 | tee log.txt
