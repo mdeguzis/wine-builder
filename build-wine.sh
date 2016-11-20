@@ -304,7 +304,7 @@ build_wine()
 	cat<<- EOF
 
 	----------------------------------------------
-	Building ${WINE_VERSION} for 32 bit"
+	Building ${WINE_VERSION} for 32 bit
 	----------------------------------------------
 
 	EOF
